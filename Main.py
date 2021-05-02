@@ -11,6 +11,8 @@ DARK_BLUE = (35, 31, 60)
 GREEN = (0, 255, 0)
 fon_verh = pygame.image.load('Rus\\Verh.png')
 fon_verh_rect = fon_verh.get_rect(left=0)
+anim_id = 0
+anim_count = 6
 
 fon_nuz = pygame.image.load('Rus\\Nuz.png')
 fon_nuz_rect = fon_nuz.get_rect(left=0)
@@ -123,6 +125,8 @@ def level(SCORE):
 
 def game_loop():
         global dragon
+        global anim_count
+        global anim_id
         dragon = dragon_class.Dragon(WINDOW_HEIGHT, WINDOW_WIDTH)
         knight = Knight_class()
         flames = Flames()
@@ -183,7 +187,15 @@ def game_loop():
             canvas.blit(fon_verh, fon_verh_rect)
             canvas.blit(fon_nuz, fon_nuz_rect)
             knight.update()
-            dragon.update(canvas, fon_verh_rect, fon_nuz_rect, WINDOW_HEIGHT)
+            dragon.update(canvas, fon_verh_rect, fon_nuz_rect, anim_id)
+            if anim_id == 7:
+                anim_id = 0
+            else:
+                if anim_count == 0:
+                    anim_id += 1
+                    anim_count = 6
+                elif anim_count > 0:
+                    anim_count -= 1
             pygame.display.update()
             CLOCK.tick(FPS)
 
