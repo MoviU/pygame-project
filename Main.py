@@ -1,46 +1,29 @@
 import pygame
 import sys
+import dragon_class
 
 pygame.init()
 
 WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 600
-FPS = 20
+FPS = 60
 DARK_BLUE = (35, 31, 60)
 GREEN = (0, 255, 0)
 fon_verh = pygame.image.load('Rus\\Verh.png')
 fon_verh_rect = fon_verh.get_rect(left=0)
+anim_id = 0
+anim_count = 6
 
 fon_nuz = pygame.image.load('Rus\\Nuz.png')
-fon_nuz_rect = fon_nuz.get_rect(left = 0)
+fon_nuz_rect = fon_nuz.get_rect(left=0)
 CLOCK = pygame.time.Clock()
 font = pygame.font.Font(None, 30)
 
 canvas = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Лицарська епоха')
 
-class Dragon:
-    def __init__(self):
-        self.dragon_img = pygame.image.load('Rus//Dragon.png')
-        self.dragon_img_rect = self.dragon_img.get_rect()
-        self.dragon_img_rect.top = WINDOW_HEIGHT//2
-        self.dragon_img_rect.right = WINDOW_WIDTH
-        self.up = True
-        self.down =False
 
-    def update(self):
-        canvas.blit(self.dragon_img, self.dragon_img_rect)
-        if self.dragon_img_rect.top <= fon_verh_rect.bottom:
-            self.up = False
-            self.down = True
-        elif self.dragon_img_rect.bottom +40>= fon_nuz_rect.top:
-            self.up = True
-            self.down = False
 
-        if self.up:
-            self.dragon_img_rect.top -= 10
-        elif self.down:
-            self.dragon_img_rect.top += 10
 
 class Flames:
     def __init__(self):
@@ -142,9 +125,11 @@ def level(SCORE):
 
 def game_loop():
         global dragon
-        dragon = Dragon()
+        global anim_count
+        global anim_id
+        dragon = dragon_class.Dragon(WINDOW_HEIGHT, WINDOW_WIDTH)
         knight = Knight_class()
-        flames=Flames()
+        flames = Flames()
         flames_list = []
         pygame.mixer.music.load('Rus//muz.mp3')
         pygame.mixer.music.play(-1, 0.0)
@@ -202,7 +187,15 @@ def game_loop():
             canvas.blit(fon_verh, fon_verh_rect)
             canvas.blit(fon_nuz, fon_nuz_rect)
             knight.update()
-            dragon.update()
+            dragon.update(canvas, fon_verh_rect, fon_nuz_rect, anim_id)
+            if anim_id == 7:
+                anim_id = 0
+            else:
+                if anim_count == 0:
+                    anim_id += 1
+                    anim_count = 6
+                elif anim_count > 0:
+                    anim_count -= 1
             pygame.display.update()
             CLOCK.tick(FPS)
 
