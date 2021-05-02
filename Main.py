@@ -1,7 +1,8 @@
 import pygame
 import sys
-import dragon_class
+import files
 
+fileManager = files.fileManager()
 pygame.init()
 
 WINDOW_WIDTH = 1200
@@ -36,34 +37,10 @@ class Flames:
     def update(self):
         canvas.blit(self.flames_img, self.flames_img_rect)
         if self.flames_img_rect.left > 0:
-            self.flames_img_rect.left-=20
+            self.flames_img_rect.left-=10
 
 
-class Knight_class:
-    def __init__(self):
-        self.knight_img = pygame.image.load('Rus//Knight.png')
-        self.knight_img_rect = self.knight_img.get_rect()
-        self.knight_img_rect.left = 20
-        self.knight_img_rect.top = WINDOW_HEIGHT//2 - 100
-        self.down = True
-        self.up = False
 
-    def update(self):
-        canvas.blit(self.knight_img, self.knight_img_rect)
-
-        #відловив зіткнення нижніх та верхніх меж хляхом перемішення героя в позицію 100
-        #при цьому виникає глюк на 4 рівні при зіткненні з верхом або низом, тому покорегуйте
-
-        if self.knight_img_rect.top <= fon_verh_rect.bottom:
-            self.knight_img_rect.top=100
-
-        if self.knight_img_rect.bottom >= fon_nuz_rect.top:
-            self.knight_img_rect.top=100
-
-        if self.up:
-            self.knight_img_rect.top -= 10
-        if self.down:
-            self.knight_img_rect.bottom += 10
 
 def start_game():
     canvas.fill(DARK_BLUE)
@@ -100,6 +77,7 @@ def game_over():
                     sys.exit()
 
                 game_loop()
+                break
         pygame.display.update()
 
 def level(SCORE):
@@ -120,15 +98,16 @@ def level(SCORE):
         fon_verh_rect.bottom = 200
         fon_nuz_rect.top = WINDOW_HEIGHT - 200
         LEVEL = 4
-
-
+    fileManager.
 
 def game_loop():
+        import dragon_class
+        import knight_class
         global dragon
         global anim_count
         global anim_id
         dragon = dragon_class.Dragon(WINDOW_HEIGHT, WINDOW_WIDTH)
-        knight = Knight_class()
+        knight = knight_class.Knight()
         flames = Flames()
         flames_list = []
         pygame.mixer.music.load('Rus//muz.mp3')
@@ -186,7 +165,7 @@ def game_loop():
             canvas.blit(level_font, (200, fon_verh_rect.bottom + 30))
             canvas.blit(fon_verh, fon_verh_rect)
             canvas.blit(fon_nuz, fon_nuz_rect)
-            knight.update()
+            knight.update(canvas, fon_verh_rect, fon_nuz_rect)
             dragon.update(canvas, fon_verh_rect, fon_nuz_rect, anim_id)
             if anim_id == 7:
                 anim_id = 0
