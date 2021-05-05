@@ -11,8 +11,7 @@ DARK_BLUE = (35, 31, 60)
 GREEN = (0, 255, 0)
 fon_verh = pygame.image.load('Rus\\Verh.png')
 fon_verh_rect = fon_verh.get_rect(left=0)
-anim_id = 0
-anim_count = 6
+
 
 fon_nuz = pygame.image.load('Rus\\Nuz.png')
 fon_nuz_rect = fon_nuz.get_rect(left=0)
@@ -24,19 +23,6 @@ pygame.display.set_caption('Лицарська епоха')
 
 
 
-
-class Flames:
-    def __init__(self):
-        self.flames = pygame.image.load('Rus\\fire.png')
-        self.flames_img = pygame.transform.scale(self.flames, (20, 20))
-        self.flames_img_rect = self.flames_img.get_rect()
-        self.flames_img_rect.right = dragon.dragon_img_rect.left
-        self.flames_img_rect.top = dragon.dragon_img_rect.top + 50
-
-    def update(self):
-        canvas.blit(self.flames_img, self.flames_img_rect)
-        if self.flames_img_rect.left > 0:
-            self.flames_img_rect.left-=20
 
 
 class Knight_class:
@@ -104,32 +90,40 @@ def game_over():
 
 def level(SCORE):
     global LEVEL
+    global flames_speed
+    global dragon_speed
     if SCORE in range(0, 10):
+        flames_speed = 20
+        dragon_speed = 7
         fon_verh_rect.bottom = 50
         fon_nuz_rect.top = WINDOW_HEIGHT - 50
         LEVEL = 1
     elif SCORE in range(10, 20):
+        flames_speed = 15
+        dragon_speed = 6
         fon_verh_rect.bottom = 100
         fon_nuz_rect.top = WINDOW_HEIGHT - 100
         LEVEL = 2
     elif SCORE in range(20, 30):
+        dragon_speed = 5
         fon_verh_rect.bottom = 150
         fon_nuz_rect.top = WINDOW_HEIGHT - 150
+        flames_speed = 10
         LEVEL = 3
     elif SCORE in range(30, 100):
+        dragon_speed = 4
         fon_verh_rect.bottom = 200
         fon_nuz_rect.top = WINDOW_HEIGHT - 200
+        flames_speed = 5
         LEVEL = 4
 
 
 
 def game_loop():
         global dragon
-        global anim_count
-        global anim_id
         dragon = dragon_class.Dragon(WINDOW_HEIGHT, WINDOW_WIDTH)
         knight = Knight_class()
-        flames = Flames()
+        flames = dragon_class.Flames(dragon)
         flames_list = []
         pygame.mixer.music.load('Rus//muz.mp3')
         pygame.mixer.music.play(-1, 0.0)
@@ -145,13 +139,13 @@ def game_loop():
             add_new_flame_counter += 1
             if add_new_flame_counter == 20: #визначає протяжність часу протягом якого буде запускатись вогонь
                 add_new_flame_counter = 0
-                new_flame = Flames()
+                new_flame = dragon_class.Flames(dragon)
                 flames_list.append(new_flame)
             for f in flames_list:
                 if f.flames_img_rect.left <= 0:
                     flames_list.remove(f)
                     SCORE += 1
-                f.update()
+                f.update(canvas, flames_speed)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -187,15 +181,7 @@ def game_loop():
             canvas.blit(fon_verh, fon_verh_rect)
             canvas.blit(fon_nuz, fon_nuz_rect)
             knight.update()
-            dragon.update(canvas, fon_verh_rect, fon_nuz_rect, anim_id)
-            if anim_id == 7:
-                anim_id = 0
-            else:
-                if anim_count == 0:
-                    anim_id += 1
-                    anim_count = 6
-                elif anim_count > 0:
-                    anim_count -= 1
+            dragon.update(canvas, fon_verh_rect, fon_nuz_rect, dragon_speed)
             pygame.display.update()
             CLOCK.tick(FPS)
 
