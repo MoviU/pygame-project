@@ -1,7 +1,8 @@
 import pygame
 import sys
-import dragon_class
+import files
 
+fileManager = files.fileManager()
 pygame.init()
 
 WINDOW_WIDTH = 1200
@@ -36,47 +37,54 @@ class Flames:
     def update(self):
         canvas.blit(self.flames_img, self.flames_img_rect)
         if self.flames_img_rect.left > 0:
-            self.flames_img_rect.left-=20
+            self.flames_img_rect.left-=10
 
 
-class Knight_class:
-    def __init__(self):
-        self.knight_img = pygame.image.load('Rus//Knight.png')
-        self.knight_img_rect = self.knight_img.get_rect()
-        self.knight_img_rect.left = 20
-        self.knight_img_rect.top = WINDOW_HEIGHT//2 - 100
-        self.down = True
-        self.up = False
 
-    def update(self):
-        canvas.blit(self.knight_img, self.knight_img_rect)
+def shopLoop():
+    from shop import Shop
+    shop = Shop()
+    canvas.fill((236, 204, 43))
+    items = shop.items
+    print(items)
+    text = font.render("Магазин у розробці. Інформація про товари є у консолі. Для виходу нажміть ESC", True, DARK_BLUE)
 
-        #відловив зіткнення нижніх та верхніх меж хляхом перемішення героя в позицію 100
-        #при цьому виникає глюк на 4 рівні при зіткненні з верхом або низом, тому покорегуйте
-
-        if self.knight_img_rect.top <= fon_verh_rect.bottom:
-            self.knight_img_rect.top=100
-
-        if self.knight_img_rect.bottom >= fon_nuz_rect.top:
-            self.knight_img_rect.top=100
-
-        if self.up:
-            self.knight_img_rect.top -= 10
-        if self.down:
-            self.knight_img_rect.bottom += 10
-
-def start_game():
-    canvas.fill(DARK_BLUE)
-    start_img = pygame.image.load('Rus//start.png')
-    start_img_rect = start_img.get_rect()
-    start_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
-    canvas.blit(start_img, start_img_rect)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    start_game()
+                    break
+                shopLoop()
+        canvas.blit(text, (200, 200))
+        pygame.display.update()
+        CLOCK.tick(FPS)
+
+
+def start_game():
+    canvas.fill((245, 245, 245))
+    start_img = pygame.image.load('Rus//start.png')
+    start_img_rect = start_img.get_rect()
+    start_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
+    canvas.blit(start_img, start_img_rect)
+    shop_button = pygame.image.load("Rus\\shop_button.png")
+    shop_button_rect = shop_button.get_rect()
+    canvas.blit(shop_button, shop_button_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse = pygame.mouse.get_pos()
+                if shop_button_rect.collidepoint(pygame.mouse.get_pos()):
+                    shopLoop()
+                    break
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
@@ -100,35 +108,51 @@ def game_over():
                     sys.exit()
 
                 game_loop()
+                break
         pygame.display.update()
 
 def level(SCORE):
     global LEVEL
     if SCORE in range(0, 10):
-        fon_verh_rect.bottom = 50
-        fon_nuz_rect.top = WINDOW_HEIGHT - 50
+        while fon_verh_rect.bottom != 50 and fon_nuz_rect.top != WINDOW_HEIGHT - 50:
+            fon_verh_rect.bottom += 0.002
+            fon_nuz_rect.top -= 0.002
         LEVEL = 1
-    elif SCORE in range(10, 20):
+    elif SCORE in range(30, 60):
         fon_verh_rect.bottom = 100
         fon_nuz_rect.top = WINDOW_HEIGHT - 100
         LEVEL = 2
-    elif SCORE in range(20, 30):
+    elif SCORE in range(61, 100):
         fon_verh_rect.bottom = 150
         fon_nuz_rect.top = WINDOW_HEIGHT - 150
         LEVEL = 3
-    elif SCORE in range(30, 100):
+    elif SCORE in range(101, 180):
         fon_verh_rect.bottom = 200
         fon_nuz_rect.top = WINDOW_HEIGHT - 200
         LEVEL = 4
+    fileManager.write({"last_score": SCORE})
+    if (SCORE > int(fileManager.find("game.csv", 'hight_score')[0])):
+        fileManager.write("game.csv", {"hight_score": SCORE})
+    if (str(SCORE)[-1] == '0' and SCORE != 0):
+        fileManager.addCoin()
 
+class Background(pygame.sprite.Sprite):
+    def __init__(self, image_file, location):
+        pygame.sprite.Sprite.__init__(self)  #call Sprite initializer
+        self.image = pygame.image.load(image_file)
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = location
 
+BackGround = Background('Rus\\fon.jpg', [0,0])
 
 def game_loop():
+        import dragon_class
+        import knight_class
         global dragon
         global anim_count
         global anim_id
         dragon = dragon_class.Dragon(WINDOW_HEIGHT, WINDOW_WIDTH)
-        knight = Knight_class()
+        knight = knight_class.Knight()
         flames = Flames()
         flames_list = []
         pygame.mixer.music.load('Rus//muz.mp3')
@@ -138,12 +162,13 @@ def game_loop():
         popav=100
         SCORE=0
         while True:
-            canvas.fill(DARK_BLUE)
+            canvas.fill([255, 255, 255])
+            canvas.blit(BackGround.image, BackGround.rect)
             fon_verh_rect.bottom = 50
             fon_nuz_rect.top = WINDOW_HEIGHT - 50
             level(SCORE)
             add_new_flame_counter += 1
-            if add_new_flame_counter == 20: #визначає протяжність часу протягом якого буде запускатись вогонь
+            if add_new_flame_counter == 25: #визначає протяжність часу протягом якого буде запускатись вогонь
                 add_new_flame_counter = 0
                 new_flame = Flames()
                 flames_list.append(new_flame)
@@ -186,7 +211,7 @@ def game_loop():
             canvas.blit(level_font, (200, fon_verh_rect.bottom + 30))
             canvas.blit(fon_verh, fon_verh_rect)
             canvas.blit(fon_nuz, fon_nuz_rect)
-            knight.update()
+            knight.update(canvas, fon_verh_rect, fon_nuz_rect)
             dragon.update(canvas, fon_verh_rect, fon_nuz_rect, anim_id)
             if anim_id == 7:
                 anim_id = 0
