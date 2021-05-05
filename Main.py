@@ -41,19 +41,50 @@ class Flames:
 
 
 
+def shopLoop():
+    from shop import Shop
+    shop = Shop()
+    canvas.fill((236, 204, 43))
+    items = shop.items
+    print(items)
+    text = font.render("Магазин у розробці. Інформація про товари є у консолі. Для виходу нажміть ESC", True, DARK_BLUE)
 
-def start_game():
-    canvas.fill(DARK_BLUE)
-    start_img = pygame.image.load('Rus//start.png')
-    start_img_rect = start_img.get_rect()
-    start_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
-    canvas.blit(start_img, start_img_rect)
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    start_game()
+                    break
+                shopLoop()
+        canvas.blit(text, (200, 200))
+        pygame.display.update()
+        CLOCK.tick(FPS)
+
+
+def start_game():
+    canvas.fill((245, 245, 245))
+    start_img = pygame.image.load('Rus//start.png')
+    start_img_rect = start_img.get_rect()
+    start_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
+    canvas.blit(start_img, start_img_rect)
+    shop_button = pygame.image.load("Rus\\shop_button.png")
+    shop_button_rect = shop_button.get_rect()
+    canvas.blit(shop_button, shop_button_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse = pygame.mouse.get_pos()
+                if shop_button_rect.collidepoint(pygame.mouse.get_pos()):
+                    shopLoop()
+                    break
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.quit()
@@ -83,22 +114,36 @@ def game_over():
 def level(SCORE):
     global LEVEL
     if SCORE in range(0, 10):
-        fon_verh_rect.bottom = 50
-        fon_nuz_rect.top = WINDOW_HEIGHT - 50
+        while fon_verh_rect.bottom != 50 and fon_nuz_rect.top != WINDOW_HEIGHT - 50:
+            fon_verh_rect.bottom += 0.002
+            fon_nuz_rect.top -= 0.002
         LEVEL = 1
-    elif SCORE in range(10, 20):
+    elif SCORE in range(30, 60):
         fon_verh_rect.bottom = 100
         fon_nuz_rect.top = WINDOW_HEIGHT - 100
         LEVEL = 2
-    elif SCORE in range(20, 30):
+    elif SCORE in range(61, 100):
         fon_verh_rect.bottom = 150
         fon_nuz_rect.top = WINDOW_HEIGHT - 150
         LEVEL = 3
-    elif SCORE in range(30, 100):
+    elif SCORE in range(101, 180):
         fon_verh_rect.bottom = 200
         fon_nuz_rect.top = WINDOW_HEIGHT - 200
         LEVEL = 4
-    fileManager.
+    fileManager.write({"last_score": SCORE})
+    if (SCORE > int(fileManager.find("game.csv", 'hight_score')[0])):
+        fileManager.write("game.csv", {"hight_score": SCORE})
+    if (str(SCORE)[-1] == '0' and SCORE != 0):
+        fileManager.addCoin()
+
+class Background(pygame.sprite.Sprite):
+    def __init__(self, image_file, location):
+        pygame.sprite.Sprite.__init__(self)  #call Sprite initializer
+        self.image = pygame.image.load(image_file)
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = location
+
+BackGround = Background('Rus\\fon.jpg', [0,0])
 
 def game_loop():
         import dragon_class
@@ -117,12 +162,13 @@ def game_loop():
         popav=100
         SCORE=0
         while True:
-            canvas.fill(DARK_BLUE)
+            canvas.fill([255, 255, 255])
+            canvas.blit(BackGround.image, BackGround.rect)
             fon_verh_rect.bottom = 50
             fon_nuz_rect.top = WINDOW_HEIGHT - 50
             level(SCORE)
             add_new_flame_counter += 1
-            if add_new_flame_counter == 20: #визначає протяжність часу протягом якого буде запускатись вогонь
+            if add_new_flame_counter == 25: #визначає протяжність часу протягом якого буде запускатись вогонь
                 add_new_flame_counter = 0
                 new_flame = Flames()
                 flames_list.append(new_flame)

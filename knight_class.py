@@ -4,7 +4,8 @@ WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 600
 class Knight:
     def __init__(self):
-        self.knight_img = pygame.image.load('Rus//Knight.png')
+        self.knight_img = pygame.image.load('Rus\\new_knight.png')
+        self.knight_img = pygame.transform.scale(self.knight_img, (52, 85))
         self.knight_img_rect = self.knight_img.get_rect()
         self.knight_img_rect.left = 20
         self.knight_img_rect.top = WINDOW_HEIGHT//2 - 100
