@@ -21,7 +21,7 @@ CLOCK = pygame.time.Clock()
 font = pygame.font.Font(None, 30)
 
 canvas = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption('Лицарська епоха')
+pygame.display.set_caption('Лицарський двіж')
 
 
 
