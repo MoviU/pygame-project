@@ -5,11 +5,12 @@ class fileManager:
     __file_name = 'game.csv'
     __shop_file_name = "shop.csv"
     __colums = ['hight_score', 'last_score', 'player', 'effect', 'coins']
+    __shopColumns = ['id', 'type', 'inShop', 'price', 'file']
 
     def __createFiles(self):
         __data = [
-            self.colums,
-            "0,0,default,none,0".split(",")
+            self.__colums,
+            "0,0,skin_6.png,none,0".split(",")
         ]
         __fieldnames = __data[0]
         __vals = []
@@ -27,7 +28,7 @@ class fileManager:
         if not os.path.exists(self.__file_name):
             self.__createFiles()
 
-    def find(self, file_name = "game.csv", params = False, ):
+    def find(self, file_name = "game.csv", params = False):
         with open(file_name) as file:
             __result = []
             reader = csv.DictReader(file, delimiter=',')

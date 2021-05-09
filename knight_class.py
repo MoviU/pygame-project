@@ -1,10 +1,12 @@
 import pygame
+from shop import Shop
 
 WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 600
 class Knight:
     def __init__(self):
-        self.knight_img = pygame.image.load('Rus\\new_knight.png')
+        self.__shop = Shop()
+        self.knight_img = pygame.image.load('Rus\\{}'.format(self.__shop.getSkin()))
         self.knight_img = pygame.transform.scale(self.knight_img, (52, 85))
         self.knight_img_rect = self.knight_img.get_rect()
         self.knight_img_rect.left = 20
@@ -14,9 +16,6 @@ class Knight:
 
     def update(self, canvas, fon_verh_rect, fon_nuz_rect):
         canvas.blit(self.knight_img, self.knight_img_rect)
-
-        #відловив зіткнення нижніх та верхніх меж хляхом перемішення героя в позицію 100
-        #при цьому виникає глюк на 4 рівні при зіткненні з верхом або низом, тому покорегуйте
 
         if self.knight_img_rect.top <= fon_verh_rect.bottom:
             self.knight_img_rect.top = fon_verh_rect.bottom + 25

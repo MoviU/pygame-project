@@ -1,15 +1,45 @@
 import pygame
 import files
 import os
+import csv
 
 class Shop:
+    __colums = ['id', 'type', 'inShop', 'price', 'file']
+
     def getBalance(self):
         balance = self.__fileManager.find("game.csv", 'coins')
-        return int(balance)
+        return int(balance[0])
 
     def getSkin(self):
         skin = self.__fileManager.find("game.csv", 'player')
-        return skin
+        return skin[0]
+
+    def buyed(self, id):
+        __data_list = []
+        for row in self.getItems():
+            if row['id'] == id:
+                row['inShop'] = '0'
+            __data_list.append(row)
+        with open("shop.csv", "w", newline='') as file:
+            writer = csv.DictWriter(file, self.__colums)
+            writer.writeheader()
+            writer.writerows(__data_list)
+
+    def find(self, id, key):
+        for row in self.getItems():
+            if row['id'] == id:
+                return row[key]
+
+    def buy(self, id):
+        __price = int(self.find(id, 'price'))
+        if self.getBalance() >= __price:
+            self.buyed(id)
+            self.__fileManager.write({'coins': self.getBalance() - __price})
+            return True
+        return False
+
+    def setSkin(self, id):
+        self.__fileManager.write({'player': self.find(id, 'file')})
 
     def getEffect(self):
         effect = self.__fileManager.find("game.csv", 'effect')
@@ -22,10 +52,10 @@ class Shop:
     def __init__(self):
         if not os.path.exists("shop.csv"):
             files.fileManager.createFile("shop.csv", {
-                'type': ['skin', 'effect', 'skin'],
-                'inShop': ['1', '1', '1'],
-                'price': ['1000', '50000', '5000'],
-                'file':  ['skin_1.png', 'effect_1.png', 'skin_2.png']
+                'type': ['skin', 'skin', 'skin', 'skin', 'skin', 'skin', 'skin'],
+                'inShop': ['1', '1', '1', '1', '1', '0', '1'],
+                'price': ['10000', '7500', '7500', '5000', '5000', '0', '5000'],
+                'file':  ['skin_1.png', 'skin_2.png', 'skin_3.png', 'skin_4.png', 'skin_5.png', 'skin_6.png', 'skin_7.png']
             })
         self.__fileManager = files.fileManager()
         self.balance = self.getBalance

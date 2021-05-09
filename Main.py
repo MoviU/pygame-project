@@ -14,6 +14,7 @@ fon_verh = pygame.image.load('Rus\\Verh.png')
 fon_verh_rect = fon_verh.get_rect(left=0)
 anim_id = 0
 anim_count = 6
+error_text = ''
 
 fon_nuz = pygame.image.load('Rus\\Nuz.png')
 fon_nuz_rect = fon_nuz.get_rect(left=0)
@@ -42,30 +43,69 @@ class Flames:
 
 
 def shopLoop():
+    global error_text
     from shop import Shop
+    back = pygame.image.load("Rus\\back.png")
+    back_rect = back.get_rect()
     shop = Shop()
     canvas.fill((236, 204, 43))
     items = shop.items
-    print(items)
-    text = font.render("Магазин у розробці. Інформація про товари є у консолі. Для виходу нажміть ESC", True, DARK_BLUE)
-
-
+    items_x = 400
+    items_y = 50
+    button_list = []
+    balance = font.render("Ваш баланс: " + str(shop.getBalance()), 1, (0, 0, 0))
     while True:
+        canvas.blit(back, back_rect)
+        for item in items:
+            if items_x >= 150 * 4 + 400:
+                items_x = 400
+                items_y += 250
+            if item['inShop'] == '1':
+                locals().update({'button{}'.format(item['id']): pygame.image.load("Rus\\buy_button.png")})
+                locals().update({'button{}_rect'.format(item['id']): eval("button{}".format(item['id'])).get_rect(top=items_y + 180, right=items_x+60)})
+            elif item['file'] == shop.getSkin():
+                locals().update({'button{}'.format(item['id']): pygame.transform.scale(pygame.image.load("Rus\\selected.png"), [140, 15])})
+                locals().update({'button{}_rect'.format(item['id']): eval("button{}".format(item['id'])).get_rect(top=items_y + 180, right=items_x+120)})
+            else:
+                locals().update({'button{}'.format(item['id']): pygame.image.load("Rus\\equip_button.png")})
+                locals().update({'button{}_rect'.format(item['id']): eval("button{}".format(item['id'])).get_rect(top=items_y + 180, right=items_x+60)})
+            canvas.blit(font.render("Ціна: " + str(shop.find(item["id"], 'price')), 1, (0, 0, 0)), [items_x, items_y + 150])
+            button_list.append([eval("button{}_rect".format(item['id'])), item['id'], item['inShop']])
+            canvas.blit(pygame.transform.scale(pygame.image.load("Rus\\{}".format(item['file'])), (112, 150)), [items_x, items_y])
+            canvas.blit(eval("button{}".format(item['id'])), eval("button{}_rect".format(item['id'])))
+            items_x += 150
+            items.remove(item)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if back_rect.collidepoint(pygame.mouse.get_pos()):
+                    start_game()
+                    break
+                for button in button_list:
+                    if button[0].collidepoint(pygame.mouse.get_pos()):
+                        if button[2] == '1':
+                            result = shop.buy(button[1])
+                            if not result:
+                                error_text = 'Недостатня кількість монет'
+                        else:
+                            shop.setSkin(button[1])
+                        shopLoop()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     start_game()
                     break
-                shopLoop()
-        canvas.blit(text, (200, 200))
+        canvas.blit(font.render(error_text, 1, (248, 0, 0)), [20, 130])
+        canvas.blit(balance, [20, 100])
         pygame.display.update()
         CLOCK.tick(FPS)
 
 
 def start_game():
+    global error_text
+    error_text = ''
     canvas.fill((245, 245, 245))
     start_img = pygame.image.load('Rus//start.png')
     start_img_rect = start_img.get_rect()
@@ -114,25 +154,24 @@ def game_over():
 def level(SCORE):
     global LEVEL
     if SCORE in range(0, 10):
-        while fon_verh_rect.bottom != 50 and fon_nuz_rect.top != WINDOW_HEIGHT - 50:
-            fon_verh_rect.bottom += 0.002
-            fon_nuz_rect.top -= 0.002
+        fon_verh_rect.bottom = 50
+        fon_nuz_rect.top = WINDOW_HEIGHT - 50
         LEVEL = 1
     elif SCORE in range(30, 60):
         fon_verh_rect.bottom = 100
         fon_nuz_rect.top = WINDOW_HEIGHT - 100
         LEVEL = 2
-    elif SCORE in range(61, 100):
+    elif SCORE in range(60, 100):
         fon_verh_rect.bottom = 150
         fon_nuz_rect.top = WINDOW_HEIGHT - 150
         LEVEL = 3
-    elif SCORE in range(101, 180):
+    elif SCORE in range(100, 180):
         fon_verh_rect.bottom = 200
         fon_nuz_rect.top = WINDOW_HEIGHT - 200
         LEVEL = 4
-    fileManager.write({"last_score": SCORE})
+    fileManager.write({"last_score": SCORE}, "game.csv",)
     if (SCORE > int(fileManager.find("game.csv", 'hight_score')[0])):
-        fileManager.write("game.csv", {"hight_score": SCORE})
+        fileManager.write({"hight_score": SCORE}, "game.csv")
     if (str(SCORE)[-1] == '0' and SCORE != 0):
         fileManager.addCoin()
 
