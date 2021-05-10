@@ -1,0 +1,4 @@
+# Ігноруємо файли PyCharm і __pycahe__
+venv/
+.idea/
+__pycache__/
