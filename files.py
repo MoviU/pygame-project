@@ -77,7 +77,6 @@ class fileManager:
                 __values.append(data[j][i])
             inner_dict = dict(zip(__shopColumns, __values))
             __vals.append(inner_dict)
-        print(__vals)
         with open(name, "w", encoding="utf-8", newline='') as file:
             __writer = csv.DictWriter(file, fieldnames = __shopColumns, delimiter=",")
             __writer.writeheader()
