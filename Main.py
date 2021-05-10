@@ -1,6 +1,7 @@
 import pygame
 import sys
 import files
+import os
 
 fileManager = files.fileManager()
 pygame.init()
@@ -25,8 +26,6 @@ canvas = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Лицарський двіж')
 
 
-
-
 class Flames:
     def __init__(self):
         self.flames = pygame.image.load('Rus\\fire.png')
@@ -34,13 +33,30 @@ class Flames:
         self.flames_img_rect = self.flames_img.get_rect()
         self.flames_img_rect.right = dragon.dragon_img_rect.left
         self.flames_img_rect.top = dragon.dragon_img_rect.top + 50
-
     def update(self):
         canvas.blit(self.flames_img, self.flames_img_rect)
         if self.flames_img_rect.left > 0:
             self.flames_img_rect.left-=10
 
-
+class Effect:
+    def __init__(self, path, count, x, y):
+        self.anim_images = []
+        for i in range(count):
+            self.anim_images.append(pygame.transform.scale(pygame.image.load(path + str(i + 1) + '.png'), [110, 109]))
+        self.anim_id = 0
+        self.count = count
+        self.effect_img = self.anim_images[self.anim_id]
+        self.effect_img_rect = self.effect_img.get_rect(left = x, top = y)
+        self.duration = 5
+    def update(self, canvas):
+        if self.duration == 5:
+            self.duration = 0
+            if self.anim_id == self.count:
+                self.anim_id = 0
+            self.effect_img = self.anim_images[self.anim_id]
+            canvas.blit(self.effect_img, self.effect_img_rect)
+            self.anim_id += 1
+        self.duration += 1
 
 def shopLoop():
     global error_text
@@ -52,6 +68,7 @@ def shopLoop():
     items = shop.items
     items_x = 400
     items_y = 50
+    effect_list = []
     button_list = []
     balance = font.render("Ваш баланс: " + str(shop.getBalance()), 1, (0, 0, 0))
     while True:
@@ -66,12 +83,23 @@ def shopLoop():
             elif item['file'] == shop.getSkin():
                 locals().update({'button{}'.format(item['id']): pygame.transform.scale(pygame.image.load("Rus\\selected.png"), [140, 15])})
                 locals().update({'button{}_rect'.format(item['id']): eval("button{}".format(item['id'])).get_rect(top=items_y + 180, right=items_x+120)})
+            elif item['file'] == shop.getEffect():
+                locals().update({'button{}'.format(item['id']): pygame.transform.scale(pygame.image.load("Rus\\selected.png"), [140, 15])})
+                locals().update({'button{}_rect'.format(item['id']): eval("button{}".format(item['id'])).get_rect(top=items_y + 180, right=items_x+120)})
             else:
                 locals().update({'button{}'.format(item['id']): pygame.image.load("Rus\\equip_button.png")})
                 locals().update({'button{}_rect'.format(item['id']): eval("button{}".format(item['id'])).get_rect(top=items_y + 180, right=items_x+60)})
             canvas.blit(font.render("Ціна: " + str(shop.find(item["id"], 'price')), 1, (0, 0, 0)), [items_x, items_y + 150])
-            button_list.append([eval("button{}_rect".format(item['id'])), item['id'], item['inShop']])
-            canvas.blit(pygame.transform.scale(pygame.image.load("Rus\\{}".format(item['file'])), (112, 150)), [items_x, items_y])
+            button_list.append([eval("button{}_rect".format(item['id'])), item['id'], item['inShop'], item['type']])
+            if item['type'] == 'skin':
+                canvas.blit(pygame.transform.scale(pygame.image.load("Rus\\{}".format(item['file'])), (112, 150)), [items_x, items_y])
+            elif item['type'] == 'effect':
+                path = 'Rus/' + item['file'] + '/'
+                effect_anim_count = len([f for f in os.listdir(path)
+                                            if os.path.isfile(os.path.join(path, f))])
+                locals().update({"effect{}".format(item['id']): Effect(path, effect_anim_count, items_x, items_y)})
+                effect_list.append(eval("effect{}".format(item['id'])))
+
             canvas.blit(eval("button{}".format(item['id'])), eval("button{}_rect".format(item['id'])))
             items_x += 150
             items.remove(item)
@@ -97,6 +125,8 @@ def shopLoop():
                 if event.key == pygame.K_ESCAPE:
                     start_game()
                     break
+        for i in effect_list:
+            i.update(canvas)
         canvas.blit(font.render(error_text, 1, (248, 0, 0)), [20, 130])
         canvas.blit(balance, [20, 100])
         pygame.display.update()
