@@ -1,5 +1,7 @@
 import pygame
 from shop import Shop
+from effect import Effect
+import os
 
 WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 600
@@ -11,6 +13,13 @@ class Knight:
         self.knight_img_rect = self.knight_img.get_rect()
         self.knight_img_rect.left = 20
         self.knight_img_rect.top = WINDOW_HEIGHT//2 - 100
+        self.life = 100
+        self.shield = self.shield(self.__shop.getEffect())
+        if self.__shop.getEffect() != 'none':
+            self.__path = 'Rus/' + self.__shop.getEffect() + '/'
+            self.__effect_anim_count = len([f for f in os.listdir(self.__path)
+                                     if os.path.isfile(os.path.join(self.__path, f))])
+            self.effect = Effect(self.__path, self.__effect_anim_count, self.knight_img_rect.left, self.knight_img_rect.top)
         self.down = True
         self.up = False
 
@@ -27,3 +36,18 @@ class Knight:
             self.knight_img_rect.top -= 5
         if self.down:
             self.knight_img_rect.bottom += 5
+        self.effect.rect.center = self.knight_img_rect.center
+        if self.__effect_anim_count < 10:
+            self.effect.update(canvas, 10)
+        else:
+            self.effect.update(canvas)
+    def damage(self, hp):
+        if self.shield != False and self.shield > 0:
+            self.shield -= hp
+        else:
+            self.life -= hp
+
+    def shield(self, effect):
+        if effect == 'effect_1':
+            return 100
+        return False
