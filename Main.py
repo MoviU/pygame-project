@@ -42,10 +42,10 @@ class Flames:
         self.flames_img_rect = self.flames_img.get_rect()
         self.flames_img_rect.right = dragon.dragon_img_rect.left
         self.flames_img_rect.top = dragon.dragon_img_rect.top + 50
-    def update(self):
+    def update(self, speed):
         canvas.blit(self.flames_img, self.flames_img_rect)
         if self.flames_img_rect.left > 0:
-            self.flames_img_rect.left-=10
+            self.flames_img_rect.left -= speed
 
 
 def shopLoop():
@@ -84,7 +84,7 @@ def shopLoop():
                 locals().update({'button{}'.format(item['id']): pygame.image.load("Rus\\equip_button.png")})
                 locals().update({'button{}_rect'.format(item['id']): eval("button{}".format(item['id'])).get_rect(top=items_y + 180, right=items_x+60)})
             canvas.blit(font.render("Ціна: " + str(shop.find(item["id"], 'price')), 1, (0, 0, 0)), [items_x, items_y + 150])
-            button_list.append([eval("button{}_rect".format(item['id'])), item['id'], item['inShop'], item['type']])
+            button_list.append([eval("button{}_rect".format(item['id'])), item['id'], item['inShop'], item['type'], item['file'] == shop.getEffect()])
             # Позиції магазину
             if item['type'] == 'skin':
                 canvas.blit(pygame.transform.scale(pygame.image.load("Rus\\{}".format(item['file'])), (112, 150)), [items_x, items_y])
@@ -118,6 +118,8 @@ def shopLoop():
                         else:
                             if button[3] == 'skin':
                                 shop.setSkin(button[1])
+                            elif button[2] == '0' and button[4]:
+                                shop.setEffect('none')
                             else:
                                 shop.setEffect(button[1])
                         shopLoop()
@@ -186,7 +188,7 @@ def start_game():
         pygame.display.update()
 
 def game_over():
-    game_over_img = pygame.image.load('Rus//The_end.png')
+    game_over_img = pygame.image.load('Rus//lose.png')
     game_over_img_rect = game_over_img.get_rect()
     game_over_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
     canvas.blit(game_over_img, game_over_img_rect)
@@ -321,6 +323,7 @@ def game_loop():
 
         add_new_flame_counter=0
         SCORE=0
+        new_flame_delay = 25
         while True:
             canvas.fill([255, 255, 255])
             canvas.blit(BackGround.image, BackGround.rect)
@@ -330,7 +333,7 @@ def game_loop():
             if not PAUSED:
                 add_new_flame_counter += 1
 
-                if add_new_flame_counter == 25: #визначає протяжність часу протягом якого буде запускатись вогонь
+                if add_new_flame_counter == new_flame_delay: #визначає протяжність часу протягом якого буде запускатись вогонь
                     add_new_flame_counter = 0
                     new_flame = Flames()
                     flames_list.append(new_flame)
@@ -338,7 +341,17 @@ def game_loop():
                     if f.flames_img_rect.left <= 0:
                         flames_list.remove(f)
                         SCORE += 1
-                    f.update()
+                    if LEVEL == 1:
+                        f.update(10)
+                    elif LEVEL == 2:
+                        new_flame_delay = 30
+                        f.update(15)
+                    elif LEVEL == 3:
+                        new_flame_delay = 35
+                        f.update(20)
+                    elif LEVEL == 4:
+                        new_flame_delay = 50
+                        f.update(30)
             if not PAUSED:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

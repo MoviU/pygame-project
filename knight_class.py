@@ -22,6 +22,7 @@ class Knight:
             self.effect = Effect(self.__path, self.__effect_anim_count, self.knight_img_rect.left, self.knight_img_rect.top)
         self.down = True
         self.up = False
+        self.duration = 10
 
     def update(self, canvas, fon_verh_rect, fon_nuz_rect):
         canvas.blit(self.knight_img, self.knight_img_rect)
@@ -41,11 +42,21 @@ class Knight:
             self.effect.update(canvas, 10)
         else:
             self.effect.update(canvas)
+        self.regenerate()
     def damage(self, hp):
         if self.shield != False and self.shield > 0:
             self.shield -= hp
         else:
             self.life -= hp
+
+    def regenerate(self):
+        effect = self.__shop.getEffect()
+        if effect == 'effect_1' or effect == 'effect_2':
+            if self.duration == 0:
+                if self.life <= 100:
+                    self.life += 1
+                self.duration = 10
+            self.duration -= 1
 
     def shield(self, effect):
         if effect == 'effect_1':
