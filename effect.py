@@ -4,6 +4,7 @@ class Effect():
     def __init__(self, path, count, x, y):
         self.anim_images = []
         for i in range(count):
+            print(path + str(i + 1) + '.png')
             self.anim_images.append(pygame.transform.scale(pygame.image.load(path + str(i + 1) + '.png').convert_alpha(), [100, 99]))
         self.anim_id = 0
         self.count = count

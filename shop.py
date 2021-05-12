@@ -42,7 +42,10 @@ class Shop:
         self.__fileManager.write({'player': self.find(id, 'file')})
 
     def setEffect(self, id):
-        self.__fileManager.write({'effect': self.find(id, 'file')})
+        if id == 'none':
+            self.__fileManager.write({'effect': 'none'})
+        else:
+            self.__fileManager.write({'effect': self.find(id, 'file')})
 
     def getEffect(self):
         effect = self.__fileManager.find("game.csv", 'effect')

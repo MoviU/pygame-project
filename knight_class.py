@@ -20,6 +20,8 @@ class Knight:
             self.__effect_anim_count = len([f for f in os.listdir(self.__path)
                                      if os.path.isfile(os.path.join(self.__path, f))])
             self.effect = Effect(self.__path, self.__effect_anim_count, self.knight_img_rect.left, self.knight_img_rect.top)
+        else:
+            self.effect = False
         self.down = True
         self.up = False
         self.duration = 10
@@ -37,11 +39,13 @@ class Knight:
             self.knight_img_rect.top -= 5
         if self.down:
             self.knight_img_rect.bottom += 5
-        self.effect.rect.center = self.knight_img_rect.center
-        if self.__effect_anim_count < 10:
-            self.effect.update(canvas, 10)
-        else:
-            self.effect.update(canvas)
+        if self.effect:
+            self.effect.rect.center = self.knight_img_rect.center
+            if self.__effect_anim_count < 10:
+                if self.effect:
+                    self.effect.update(canvas, 10)
+            else:
+                self.effect.update(canvas)
         self.regenerate()
     def damage(self, hp):
         if self.shield != False and self.shield > 0:

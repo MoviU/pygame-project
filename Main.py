@@ -37,7 +37,7 @@ pygame.display.set_caption('Лицарський двіж')
 
 class Flames:
     def __init__(self):
-        self.flames = pygame.image.load('Rus\\fire.png')
+        self.flames = pygame.image.load('Rus\\fire_ball.png')
         self.flames_img = pygame.transform.scale(self.flames, (20, 20))
         self.flames_img_rect = self.flames_img.get_rect()
         self.flames_img_rect.right = dragon.dragon_img_rect.left
