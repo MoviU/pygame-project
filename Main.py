@@ -344,14 +344,14 @@ def game_loop():
                     if LEVEL == 1:
                         f.update(10)
                     elif LEVEL == 2:
-                        new_flame_delay = 30
+                        new_flame_delay = 15
                         f.update(15)
                     elif LEVEL == 3:
-                        new_flame_delay = 35
+                        new_flame_delay = 25
                         f.update(20)
                     elif LEVEL == 4:
-                        new_flame_delay = 50
-                        f.update(30)
+                        new_flame_delay = 35
+                        f.update(25)
             if not PAUSED:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:

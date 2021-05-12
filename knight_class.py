@@ -50,19 +50,27 @@ class Knight:
     def damage(self, hp):
         if self.shield != False and self.shield > 0:
             self.shield -= hp
+            if self.shield == 0:
+                if self.__shop.getEffect() == 'effect_3':
+                    self.effect = False
         else:
             self.life -= hp
 
     def regenerate(self):
         effect = self.__shop.getEffect()
-        if effect == 'effect_1' or effect == 'effect_2':
+        if effect == 'effect_1':
             if self.duration == 0:
                 if self.life <= 100:
                     self.life += 1
                 self.duration = 10
             self.duration -= 1
-
+        elif effect == 'effect_2':
+            if self.duration == 0:
+                if self.life <= 100:
+                    self.life += 0.5
+                self.duration = 10
+            self.duration -= 1
     def shield(self, effect):
-        if effect == 'effect_1':
+        if effect == 'effect_1' or effect == 'effect_3':
             return 100
         return False
