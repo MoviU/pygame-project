@@ -2,7 +2,7 @@ import pygame
 import sys
 from effect import Effect
 import pygame.sprite
-
+import random
 import files
 import os
 
@@ -188,7 +188,43 @@ def start_game():
         pygame.display.update()
 
 def game_over():
-    game_over_img = pygame.image.load('Rus//lose.png')
+    global fileManager, menu_music, PAUSED, game_music_index
+    game_over_img = pygame.transform.scale(pygame.image.load('Rus//lose.png'), [350, 312])
+    game_over_img_rect = game_over_img.get_rect()
+    game_over_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 50)
+    canvas.blit(game_over_img, game_over_img_rect)
+    last_score = int(fileManager.find("game.csv", 'last_score')[0])
+    hight_score = int(fileManager.find("game.csv", 'hight_score')[0])
+    new_record = False
+    if hight_score > last_score:
+        last_score = font.render("Your score: " + str(last_score), 1, (255, 240, 0))
+        hight_score = font.render("Congratulation! Your hight score: " + str(hight_score), 1, (255, 0, 0))
+    else:
+        new_record = font.render("Your new hight score: " + str(hight_score), 1, (255, 0, 0))
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.mixer.music.stop()
+                    menu_music = 'repeat'
+                    PAUSED = not PAUSED
+                    game_music_index = 0
+                    start_game()
+                game_loop()
+                break
+        if new_record != False:
+            canvas.blit(new_record, [450, 120])
+        else:
+            canvas.blit(last_score, [450, 120])
+            canvas.blit(hight_score, [450, 150])
+
+        pygame.display.update()
+
+def you_win():
+    game_over_img = pygame.image.load('Rus//win.jpg')
     game_over_img_rect = game_over_img.get_rect()
     game_over_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
     canvas.blit(game_over_img, game_over_img_rect)
@@ -206,24 +242,49 @@ def game_over():
                 break
         pygame.display.update()
 
-def level(SCORE):
-    global LEVEL
+
+def level(SCORE, change = False):
+    global LEVEL, rand_level
     if SCORE in range(0, 10):
         fon_verh_rect.bottom = 50
         fon_nuz_rect.top = WINDOW_HEIGHT - 50
-        LEVEL = 1
+        if not change:
+            LEVEL = 1
+        else:
+            LEVEL += 1
+            rand_level = 1
+
     elif SCORE in range(30, 60):
         fon_verh_rect.bottom = 100
         fon_nuz_rect.top = WINDOW_HEIGHT - 100
-        LEVEL = 2
+        if not change:
+            LEVEL = 2
+        else:
+            LEVEL += 1
+            rand_level = 2
+
     elif SCORE in range(60, 100):
         fon_verh_rect.bottom = 150
         fon_nuz_rect.top = WINDOW_HEIGHT - 150
-        LEVEL = 3
-    elif SCORE in range(100, 180):
-        fon_verh_rect.bottom = 200
-        fon_nuz_rect.top = WINDOW_HEIGHT - 200
-        LEVEL = 4
+        if not change:
+            LEVEL = 3
+        else:
+            LEVEL += 1
+            rand_level = 3
+
+
+    elif SCORE in range(100, 200):
+        fon_verh_rect.bottom = 180
+        fon_nuz_rect.top = WINDOW_HEIGHT - 180
+        if not change:
+            LEVEL = 4
+        else:
+            LEVEL += 1
+            rand_level = 4
+    if SCORE >= 200:
+        you_win()
+    # if LEVEL == 4 and not change:
+    #     LEVEL = 5
     fileManager.write({"last_score": SCORE}, "game.csv",)
     if (SCORE > int(fileManager.find("game.csv", 'hight_score')[0])):
         fileManager.write({"hight_score": SCORE}, "game.csv")
@@ -299,6 +360,7 @@ def draw_pause_screen(canvas):
                 PAUSED = not PAUSED
                 game_music_index = 0
                 start_game()
+
     surf.blit(sound_buttons[game_music_index], dynamic)
     surf.blit(menu_btn, menu_btn_rect)
     canvas.blit(surf, (0, 0))
@@ -317,19 +379,21 @@ def game_loop():
         dragon = dragon_class.Dragon(WINDOW_HEIGHT, WINDOW_WIDTH)
         knight = knight_class.Knight()
         flames = Flames()
+        knight.damage(100)
         flames_list = []
         pygame.mixer.music.load('Rus//muz.mp3')
         pygame.mixer.music.play(-1, 0.0)
 
         add_new_flame_counter=0
-        SCORE=0
-        new_flame_delay = 25
+        SCORE = 165
+        new_flame_delay = 15
         while True:
             canvas.fill([255, 255, 255])
             canvas.blit(BackGround.image, BackGround.rect)
             fon_verh_rect.bottom = 50
             fon_nuz_rect.top = WINDOW_HEIGHT - 50
             level(SCORE)
+            rand_level = 0
             if not PAUSED:
                 add_new_flame_counter += 1
 
@@ -349,15 +413,30 @@ def game_loop():
                     elif LEVEL == 3:
                         new_flame_delay = 25
                         f.update(20)
-                    elif LEVEL == 4:
+                    elif LEVEL == 4 :
                         new_flame_delay = 35
-                        f.update(25)
+                        f.update(20)
+                    # else:
+                    #     levels = [5, 35, 65, 105]
+                    #     selected_level = random.choice(levels)
+                    #     level(selected_level, True)
+                    #     if selected_level == 5:
+                    #         new_flame_delay = 15
+                    #         f.update(10)
+                    #     elif selected_level == 35:
+                    #         new_flame_delay = 15
+                    #         f.update(15)
+                    #     elif selected_level == 65:
+                    #         new_flame_delay = 25
+                    #         f.update(20)
+                    #     elif selected_level == 105:
+                    #         new_flame_delay = 35
+                    #         f.update(25)
             if not PAUSED:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        pygame.mixer.music.stop()
-                        menu_music = 'repeat'
-                        start_game()
+                        pygame.quit()
+                        sys.exit()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_ESCAPE:
                             PAUSED = not PAUSED
@@ -379,8 +458,8 @@ def game_loop():
             for f in flames_list:
                 if f.flames_img_rect.colliderect(knight.knight_img_rect):
                     knight.damage(2)
-                    if knight.life <= 0:
-                        game_over()
+            if knight.life <= 0:
+                game_over()
             if knight.shield != False:
                 draw_shield_bar(canvas, fon_verh_rect.left + 50, fon_verh_rect.bottom + 75, knight.shield)
             draw_live_bar(canvas, fon_verh_rect.left + 50, fon_verh_rect.bottom + 55, knight.life)

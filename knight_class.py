@@ -31,9 +31,11 @@ class Knight:
 
         if self.knight_img_rect.top <= fon_verh_rect.bottom:
             self.knight_img_rect.top = fon_verh_rect.bottom + 25
+            self.damage()
 
         if self.knight_img_rect.bottom >= fon_nuz_rect.top:
             self.knight_img_rect.bottom = fon_nuz_rect.top - 25
+            self.damage()
 
         if self.up:
             self.knight_img_rect.top -= 5
@@ -47,7 +49,7 @@ class Knight:
             else:
                 self.effect.update(canvas)
         self.regenerate()
-    def damage(self, hp):
+    def damage(self, hp = 1):
         if self.shield != False and self.shield > 0:
             self.shield -= hp
             if self.shield == 0:
