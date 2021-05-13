@@ -45,11 +45,11 @@ class Knight:
             self.effect.rect.center = self.knight_img_rect.center
             if self.__effect_anim_count < 10:
                 if self.effect:
-                    self.effect.update(canvas, 10)
+                    self.effect.update(canvas, 1)
             else:
-                self.effect.update(canvas)
+                self.effect.update(canvas, 1)
         self.regenerate()
-    def damage(self, hp = 1):
+    def damage(self, hp = 0.5):
         if self.shield != False and self.shield > 0:
             self.shield -= hp
             if self.shield == 0:
@@ -63,13 +63,13 @@ class Knight:
         if effect == 'effect_1':
             if self.duration == 0:
                 if self.life <= 100:
-                    self.life += 1
+                    self.life += 0.5
                 self.duration = 10
             self.duration -= 1
         elif effect == 'effect_2':
             if self.duration == 0:
                 if self.life <= 100:
-                    self.life += 0.5
+                    self.life += 0.25
                 self.duration = 10
             self.duration -= 1
     def shield(self, effect):

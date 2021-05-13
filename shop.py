@@ -60,7 +60,7 @@ class Shop:
             files.fileManager.createFile("shop.csv", {
                 'type': ['skin', 'skin', 'skin', 'skin', 'skin', 'skin', 'skin', 'effect', 'effect', 'effect'],
                 'inShop': ['1', '1', '1', '1', '1', '0', '1', '1', '1', '1'],
-                'price': ['10000', '7500', '7500', '5000', '5000', '0', '5000', '50000', '25000', '30000'],
+                'price': ['1000', '750', '750', '500', '500', '0', '500', '5000', '2500', '3000'],
                 'file':  ['skin_1.png', 'skin_2.png', 'skin_3.png', 'skin_4.png', 'skin_5.png', 'skin_6.png', 'skin_7.png', 'effect_1', 'effect_2', 'effect_3']
             })
         self.__fileManager = files.fileManager()
