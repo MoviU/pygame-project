@@ -42,6 +42,7 @@ fon_nuz = pygame.image.load('Rus\\Nuz.png')
 fon_nuz_rect = fon_nuz.get_rect(left=0)
 CLOCK = pygame.time.Clock()
 font = pygame.font.Font(None, 30)
+logo_font = pygame.font.SysFont('Times New Roman', 80)
 
 canvas = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Knight’s movement')
@@ -153,12 +154,12 @@ def start_game():
         pygame.mixer.music.play(-1, 0.0)
         pygame.mixer.music.set_volume(0.2)
         index = 0
+    logo = logo_font.render('Knight`s movement', 1, (255, 255, 0))
     index = 0
     dynamic_on = pygame.transform.scale(pygame.image.load("Rus\\sound_on.png"), [160, 43])
     dynamic_off = pygame.transform.scale(pygame.image.load("Rus\\sound_off.png"), [160, 43])
     sound_buttons = [dynamic_on, dynamic_off]
     dynamic = dynamic_on.get_rect()
-    dynamic.right = WINDOW_WIDTH
     error_text = ''
     canvas.fill((245, 245, 245))
 
@@ -168,6 +169,8 @@ def start_game():
     start_img = pygame.transform.scale(pygame.image.load('Rus//start_button.png'), [220, 62])
     start_img_rect = start_img.get_rect()
     start_img_rect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
+    dynamic.top = start_img_rect.bottom + 40
+    dynamic.left = start_img_rect.left + 30
     canvas.blit(start_img, start_img_rect)
     shop_button = pygame.image.load("Rus\\shop_button.png")
     shop_button_rect = shop_button.get_rect()
@@ -183,7 +186,6 @@ def start_game():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                mouse = pygame.mouse.get_pos()
                 if shop_button_rect.collidepoint(pygame.mouse.get_pos()):
                     shopLoop()
                     break
@@ -204,7 +206,8 @@ def start_game():
                         index = 0
         canvas.blit(sound_buttons[index], dynamic)
         if hight_score != False:
-            canvas.blit(hight_score, [start_img_rect.left, start_img_rect.top - 60])
+            canvas.blit(hight_score, [start_img_rect.left, start_img_rect.top - 40])
+        canvas.blit(logo, [start_img_rect.left - 200, start_img_rect.top - 150])
         pygame.display.update()
 
 def game_over():
